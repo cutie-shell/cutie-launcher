@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import Cutie
+import Cutie.Store
 import Cutie.Wlc
 
 CutieWindow {
@@ -57,6 +58,12 @@ CutieWindow {
         }
 
         delegate: Item {
+            width: launchAppGrid.cellWidth
+            height: launchAppGrid.cellHeight
+
+            property bool longPress: false
+            property alias menu: menu
+
             CutieButton {
                 id: appIconButton
                 width: launchAppGrid.cellWidth
@@ -67,7 +74,21 @@ CutieWindow {
                 icon.width: height / 2
                 background: null
                 onClicked:
-                    compositor.execApp(model["Desktop Entry/Exec"]);
+                    compositor.execApp(model["Desktop Entry/Exec"])
+                onPressAndHold:
+                    menu.open()
+            }
+
+            CutieMenu {
+                id: menu
+                width: window.width * 2 / 3
+                CutieMenuItem {
+                    text: qsTr("Add to favorites")
+                    onTriggered: {
+                        saveFavoriteItem(model["Desktop Entry/Name"], model["Desktop Entry/Icon"], model["Desktop Entry/Exec"]);
+                    }
+                }
+
             }
 
             CutieLabel {
@@ -80,6 +101,19 @@ CutieWindow {
                 elide: Text.ElideRight
                 horizontalAlignment: Text.AlignHCenter
             }
+            
+            CutieStore {
+              id: favoriteStore
+              appName: "cutie-launcher"
+              storeName: "favoriteItems"
+            }
+
+            function saveFavoriteItem(name, iconPath, execCommand) {
+               let data = favoriteStore.data;
+               data["favoriteApp-" + name] = { "icon": iconPath, "command": execCommand };
+               favoriteStore.data = data;
+            }
+
         }
     }
 
