@@ -93,6 +93,11 @@ CutieWindow {
                     text: qsTr("Add to favorites")
                     onTriggered: saveFavoriteItem(model.name)
                 }
+
+                CutieMenuItem {
+                    text: qsTr("Open on external screen")
+                    onTriggered: compositor.execApp(model.exec, "external")
+                }
             }
 
             CutieLabel {
